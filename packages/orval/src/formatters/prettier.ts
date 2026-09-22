@@ -2,9 +2,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { type GeneratedFileTransform, writeGeneratedFile } from '@orval/core';
-import { execa } from 'execa';
 
 import { logger } from '../logger';
+import { run } from '../utils/run';
 
 export async function createPrettierFileTransform(): Promise<
   GeneratedFileTransform | undefined
@@ -78,7 +78,7 @@ export async function formatWithPrettier(paths: string[]): Promise<void> {
 
   // fallback to globally installed prettier
   try {
-    await execa('prettier', ['--write', ...paths]);
+    await run('prettier', ['--write', ...paths]);
   } catch {
     logger.warn(
       'prettier not found. Install it as a project dependency or globally.',

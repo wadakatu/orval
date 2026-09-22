@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 const FILE_PATH = path.resolve('/tmp/pets.service.ts');
 
 const mocks = vi.hoisted(() => ({
-  execa: vi.fn(),
+  run: vi.fn(),
   format: vi.fn(),
   readFile: vi.fn(),
   readdir: vi.fn(),
@@ -36,8 +36,8 @@ vi.mock('prettier', () => ({
   resolveConfig: mocks.resolveConfig,
 }));
 
-vi.mock('execa', () => ({
-  execa: mocks.execa,
+vi.mock('../utils/run', () => ({
+  run: mocks.run,
 }));
 
 import { formatWithPrettier } from './prettier';

@@ -39,7 +39,6 @@ import {
   writeTagsOperationsSplitMode,
   type NormalizedOutputOptions,
 } from '@orval/core';
-import { execa, ExecaError } from 'execa';
 import fs from 'fs-extra';
 import type { OptionsReader, TypeDocOptions } from 'typedoc';
 
@@ -54,6 +53,7 @@ import {
   reconcileWorkspaceBarrel,
 } from './utils';
 import { namesAFile } from './utils/options';
+import { run } from './utils/run';
 
 // The Zod writers form a self-contained chunk. Load them only for Zod schema
 // output so ordinary client generation does not evaluate their dependencies.
@@ -69,9 +69,9 @@ async function runExternalFormatter(
   args: string[],
 ): Promise<void> {
   try {
-    await execa(bin, args);
+    await run(bin, args);
   } catch (error) {
-    if (error instanceof ExecaError && error.code === 'ENOENT') {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       logger.warn(`${bin} not found`);
     } else {
       logger.warn(error);

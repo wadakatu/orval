@@ -8,10 +8,10 @@ import {
   isString,
   type NormalizedHookCommand,
 } from '@orval/core';
-import { execa } from 'execa';
 import { parseArgsStringToArgv } from 'string-argv';
 
 import { logger } from '../logger';
+import { run } from './run';
 
 export const executeHook = async (
   name: Hook,
@@ -38,7 +38,7 @@ export const executeHook = async (
 async function executeCommand(command: string, args: string[]) {
   const [cmd, ..._args] = [...parseArgsStringToArgv(command), ...args];
 
-  await execa(cmd, _args);
+  await run(cmd, _args);
 }
 
 async function executeObjectCommand(command: HookOption, args: string[]) {

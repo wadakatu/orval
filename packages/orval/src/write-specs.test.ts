@@ -11,26 +11,15 @@ import {
 import fs from 'fs-extra';
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
-const { MockExecaError } = vi.hoisted(() => ({
-  MockExecaError: class MockExecaError extends Error {
-    code?: string;
-    constructor(message: string) {
-      super(message);
-      this.name = 'ExecaError';
-    }
-  },
-}));
-
-vi.mock('execa', () => ({
-  execa: vi.fn(),
-  ExecaError: MockExecaError,
+vi.mock('./utils/run', () => ({
+  run: vi.fn(),
 }));
 
 vi.mock('./formatters/prettier', () => ({
   formatWithPrettier: vi.fn(),
 }));
 
-import { execa } from 'execa';
+import { run } from './utils/run';
 
 import {
   createMarkdownPluginReader,
@@ -40,7 +29,7 @@ import {
   writeSpecs,
 } from './write-specs';
 
-const mockedExeca = vi.mocked(execa);
+const mockedRun = vi.mocked(run);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -50,15 +39,15 @@ describe('runFormatter', () => {
   const paths = ['/tmp/a.ts', '/tmp/b.ts'];
 
   it('calls oxfmt with paths directly', async () => {
-    mockedExeca.mockResolvedValueOnce(undefined as never);
+    mockedRun.mockResolvedValueOnce(undefined as never);
     await runFormatter(SupportedFormatter.OXFMT, paths);
-    expect(mockedExeca).toHaveBeenCalledWith('oxfmt', paths);
+    expect(mockedRun).toHaveBeenCalledWith('oxfmt', paths);
   });
 
   it('calls biome check --write with paths', async () => {
-    mockedExeca.mockResolvedValueOnce(undefined as never);
+    mockedRun.mockResolvedValueOnce(undefined as never);
     await runFormatter(SupportedFormatter.BIOME, paths);
-    expect(mockedExeca).toHaveBeenCalledWith('biome', [
+    expect(mockedRun).toHaveBeenCalledWith('biome', [
       'check',
       '--write',
       ...paths,
@@ -69,19 +58,19 @@ describe('runFormatter', () => {
     const { formatWithPrettier } = await import('./formatters/prettier');
     await runFormatter(SupportedFormatter.PRETTIER, paths);
     expect(formatWithPrettier).toHaveBeenCalledWith(paths);
-    expect(mockedExeca).not.toHaveBeenCalled();
+    expect(mockedRun).not.toHaveBeenCalled();
   });
 
   it('does nothing when formatter is undefined', async () => {
     await runFormatter(undefined, paths);
-    expect(mockedExeca).not.toHaveBeenCalled();
+    expect(mockedRun).not.toHaveBeenCalled();
   });
 
   it('logs a warning when binary is not found (ENOENT)', async () => {
     const warn = vi.fn();
-    const error = new MockExecaError('spawn oxfmt ENOENT');
+    const error: NodeJS.ErrnoException = new Error('spawn oxfmt ENOENT');
     error.code = 'ENOENT';
-    mockedExeca.mockRejectedValueOnce(error);
+    mockedRun.mockRejectedValueOnce(error);
 
     await withReporter({ ...noopReporter, warn }, () =>
       runFormatter(SupportedFormatter.OXFMT, paths),

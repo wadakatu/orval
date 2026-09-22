@@ -73,7 +73,7 @@
     "@scalar/openapi-types": "catalog:",
     "chokidar": "^5.0.0",
     "commander": "^15.0.0",
-    "execa": "^9.6.1",
+    "cross-spawn": "^7.0.6",
     "find-up": "8.0.0",
     "fs-extra": "^11.3.2",
     "get-tsconfig": "^4.14.3",
@@ -84,6 +84,7 @@
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
+    "@types/cross-spawn": "^6.0.6",
     "@types/fs-extra": "^11.0.4",
     "@types/js-yaml": "^4.0.9",
     "rimraf": "catalog:",
